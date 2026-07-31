@@ -1,0 +1,11 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getRepository } from '@/lib/repositoryFactory'
+import { applyEquipmentStatusChange } from '@/lib/services/equipmentService'
+import type { EquipmentStatus } from '@/lib/types'
+
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+  const body = (await request.json()) as { status: EquipmentStatus; updatedBy: string }
+  const repo = getRepository()
+  const item = await applyEquipmentStatusChange(repo, params.id, body.status, body.updatedBy)
+  return NextResponse.json(item)
+}
