@@ -11,6 +11,12 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as NewTankInput
+  if (!body.gasType || !body.createdBy) {
+    return NextResponse.json({ error: 'gasType and createdBy are required' }, { status: 400 })
+  }
+  if (!Number.isFinite(body.psi) || !Number.isFinite(body.maxPsi)) {
+    return NextResponse.json({ error: 'psi and maxPsi must be numbers' }, { status: 400 })
+  }
   const repo = getRepository()
   const tank = await addTank(repo, body)
   return NextResponse.json(tank, { status: 201 })

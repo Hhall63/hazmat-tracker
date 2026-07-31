@@ -3,6 +3,7 @@
 import { CATEGORY_LABELS } from '@/lib/equipmentLabels'
 import { EQUIPMENT_CATEGORIES } from '@/lib/types'
 import type { EquipmentItem, EquipmentStatus } from '@/lib/types'
+import { AddEquipmentForm } from './AddEquipmentForm'
 
 async function toggleStatus(item: EquipmentItem, updatedBy: string) {
   const nextStatus: EquipmentStatus = item.status === 'in_service' ? 'out_of_service' : 'in_service'
@@ -75,6 +76,9 @@ export function EquipmentSection({
           </div>
         )
       })}
+      <div className="mt-4">
+        <AddEquipmentForm updatedBy={updatedBy} onAdded={onChanged} />
+      </div>
     </section>
   )
 }

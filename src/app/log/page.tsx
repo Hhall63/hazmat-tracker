@@ -11,6 +11,7 @@ import type { LogEntry } from '@/lib/types'
 export default function LogPage() {
   const [entries, setEntries] = useState<LogEntry[]>([])
   const [name, setName] = useLocalName()
+  const [resolveError, setResolveError] = useState('')
 
   const refetch = useCallback(async () => {
     const response = await fetch('/api/logs')
@@ -24,7 +25,12 @@ export default function LogPage() {
   useRealtimeRefetch(getSupabaseClient(), 'log_entries', refetch)
 
   async function handleResolve(id: string) {
-    await fetch(`/api/logs/${id}`, { method: 'PATCH' })
+    setResolveError('')
+    const response = await fetch(`/api/logs/${id}`, { method: 'PATCH' })
+    if (!response.ok) {
+      setResolveError('Failed to save — please try again.')
+      return
+    }
     refetch()
   }
 
@@ -38,6 +44,7 @@ export default function LogPage() {
       <div className="mb-6">
         <NewProblemForm updatedBy={name} onAdded={refetch} />
       </div>
+      {resolveError && <p className="text-red-600 text-sm mb-4">{resolveError}</p>}
       <LogTable entries={entries} onResolve={handleResolve} />
     </main>
   )

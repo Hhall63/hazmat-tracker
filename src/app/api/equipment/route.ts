@@ -11,6 +11,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = (await request.json()) as NewEquipmentInput
+  if (!body.name || !body.createdBy) {
+    return NextResponse.json({ error: 'name and createdBy are required' }, { status: 400 })
+  }
   const repo = getRepository()
   const item = await addEquipmentItem(repo, body)
   return NextResponse.json(item, { status: 201 })
