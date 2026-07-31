@@ -92,4 +92,31 @@ describe('InMemoryRepository', () => {
     })
     expect((await repo.getLogEntries()).map((e) => e.id)).toEqual([second.id, first.id])
   })
+
+  it('orders log entries by insertion order even when createdAt timestamps collide', async () => {
+    const repo = new InMemoryRepository()
+    const first = await repo.insertLogEntry({
+      createdBy: 'J. Smith',
+      entryType: 'problem_note',
+      description: 'first',
+    })
+    const second = await repo.insertLogEntry({
+      createdBy: 'J. Smith',
+      entryType: 'problem_note',
+      description: 'second',
+    })
+    const third = await repo.insertLogEntry({
+      createdBy: 'J. Smith',
+      entryType: 'problem_note',
+      description: 'third',
+    })
+    // Force identical createdAt timestamps to simulate same-millisecond inserts,
+    // which previously broke ties in the wrong direction (oldest-first) when
+    // getLogEntries() sorted by comparing createdAt strings.
+    const sameTimestamp = first.createdAt
+    second.createdAt = sameTimestamp
+    third.createdAt = sameTimestamp
+
+    expect((await repo.getLogEntries()).map((e) => e.id)).toEqual([third.id, second.id, first.id])
+  })
 })

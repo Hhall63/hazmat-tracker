@@ -115,7 +115,7 @@ export class InMemoryRepository implements Repository {
   }
 
   async getLogEntries(): Promise<LogEntry[]> {
-    return [...this.logEntries].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    return [...this.logEntries].reverse()
   }
 
   async insertLogEntry(input: NewLogEntryInput): Promise<LogEntry> {
