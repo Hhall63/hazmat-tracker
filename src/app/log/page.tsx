@@ -36,7 +36,10 @@ export default function LogPage() {
 
   return (
     <main className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Activity Log</h1>
+      <a href="/" className="text-sm underline">
+        ← Back to dashboard
+      </a>
+      <h1 className="text-2xl font-bold mb-4 mt-2">Activity Log</h1>
       <label className="block mb-4 text-sm">
         Your name
         <input value={name} onChange={(e) => setName(e.target.value)} className="block border px-2 py-1" />
