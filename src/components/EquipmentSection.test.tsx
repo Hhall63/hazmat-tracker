@@ -27,8 +27,8 @@ describe('EquipmentSection', () => {
     render(<EquipmentSection items={items} updatedBy="A. Lee" onChanged={() => {}} />)
     expect(screen.getByRole('heading', { name: 'Meters & Detectors' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'PPE' })).toBeInTheDocument()
-    expect(screen.getByTestId('status-1')).toHaveClass('text-green-600')
-    expect(screen.getByTestId('status-2')).toHaveClass('text-red-600')
+    expect(screen.getByTestId('status-1')).toHaveClass('text-status-green')
+    expect(screen.getByTestId('status-2')).toHaveClass('text-status-red')
   })
 
   it('omits categories with no active items', () => {
