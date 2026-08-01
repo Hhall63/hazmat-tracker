@@ -3,6 +3,15 @@ import { getRepository } from '@/lib/repositoryFactory'
 import { applyTankUpdate } from '@/lib/services/tankService'
 import type { TankStatus } from '@/lib/types'
 
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
+  const repo = getRepository()
+  const tank = await repo.getTank(params.id)
+  if (!tank) {
+    return NextResponse.json({ error: 'Tank not found' }, { status: 404 })
+  }
+  return NextResponse.json(tank)
+}
+
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const body = (await request.json()) as { psi?: number; status?: TankStatus; updatedBy: string }
   const repo = getRepository()
