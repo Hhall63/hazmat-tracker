@@ -21,11 +21,17 @@ beforeEach(() => {
 })
 
 describe('DashboardPage', () => {
-  it('renders the dashboard heading and the cylinders section', async () => {
+  it('renders the header, stat bar, and the cylinders section', async () => {
     render(<DashboardPage />)
-    expect(
-      await screen.findByRole('heading', { name: /hazmat inventory dashboard/i })
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /hazmat inventory/i })).toBeInTheDocument()
+    expect(screen.getByTestId('stat-bar')).toBeInTheDocument()
     expect(screen.getByText('Cylinders')).toBeInTheDocument()
+  })
+
+  it('links to the activity log and QR labels pages', async () => {
+    render(<DashboardPage />)
+    await screen.findByTestId('stat-bar')
+    expect(screen.getByText('View full activity log →')).toHaveAttribute('href', '/log')
+    expect(screen.getByText('Print QR labels →')).toHaveAttribute('href', '/labels')
   })
 })

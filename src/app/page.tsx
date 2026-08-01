@@ -1,6 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { DashboardHeader } from '@/components/DashboardHeader'
+import { StatBar } from '@/components/ui/StatBar'
 import { TankSection } from '@/components/TankSection'
 import { EquipmentSection } from '@/components/EquipmentSection'
 import { ProblemsBanner } from '@/components/ProblemsBanner'
@@ -44,18 +46,32 @@ export default function DashboardPage() {
   const latestProblem = logEntries.find((e) => e.entryType === 'problem_note' && !e.resolved) ?? null
 
   return (
-    <main className="p-6 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">HAZMAT Inventory Dashboard</h1>
-      <label className="block text-sm">
-        Your name
-        <input value={name} onChange={(e) => setName(e.target.value)} className="block border px-2 py-1" />
-      </label>
-      <ProblemsBanner latestProblem={latestProblem} />
-      <TankSection tanks={tanks} updatedBy={name} onChanged={refetchTanks} />
-      <EquipmentSection items={equipment} updatedBy={name} onChanged={refetchEquipment} />
-      <a href="/log" className="text-sm underline">
-        View full activity log →
-      </a>
-    </main>
+    <div className="min-h-screen">
+      <DashboardHeader subtitle="Engine 11 · Ladder 21 · RRT 5" />
+      <main className="mx-auto max-w-4xl space-y-6 p-6">
+        <label className="block text-sm text-ink-dim">
+          Your name
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mt-1 block rounded border border-gold/20 bg-panel px-2 py-1 text-ink"
+          />
+        </label>
+        <StatBar tanks={tanks} equipment={equipment} logEntries={logEntries} />
+        <ProblemsBanner latestProblem={latestProblem} />
+        <div className="grid gap-6 md:grid-cols-2">
+          <TankSection tanks={tanks} updatedBy={name} onChanged={refetchTanks} />
+          <EquipmentSection items={equipment} updatedBy={name} onChanged={refetchEquipment} />
+        </div>
+        <div className="flex gap-4 text-sm">
+          <a href="/log" className="text-gold underline">
+            View full activity log →
+          </a>
+          <a href="/labels" className="text-gold underline">
+            Print QR labels →
+          </a>
+        </div>
+      </main>
+    </div>
   )
 }
