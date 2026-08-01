@@ -10,31 +10,31 @@ export function LogTable({
   onResolve: (id: string) => void
 }) {
   return (
-    <table className="w-full text-sm">
+    <table className="w-full text-sm text-ink">
       <thead>
-        <tr className="text-left border-b">
-          <th>When</th>
-          <th>Who</th>
-          <th>Type</th>
-          <th>Description</th>
+        <tr className="border-b border-gold/20 text-left text-ink-dim">
+          <th className="py-1">When</th>
+          <th className="py-1">Who</th>
+          <th className="py-1">Type</th>
+          <th className="py-1">Description</th>
           <th />
         </tr>
       </thead>
       <tbody>
         {entries.map((entry) => (
-          <tr key={entry.id} className="border-b">
-            <td>{new Date(entry.createdAt).toLocaleString()}</td>
-            <td>{entry.createdBy}</td>
-            <td>{entry.entryType}</td>
-            <td>
+          <tr key={entry.id} className="border-b border-gold/10">
+            <td className="py-1">{new Date(entry.createdAt).toLocaleString()}</td>
+            <td className="py-1">{entry.createdBy}</td>
+            <td className="py-1">{entry.entryType}</td>
+            <td className="py-1">
               {entry.description}
               {entry.entryType === 'problem_note' && entry.resolved && (
-                <span className="ml-2 text-xs text-green-600">(resolved)</span>
+                <span className="ml-2 text-xs text-status-green">(resolved)</span>
               )}
             </td>
-            <td>
+            <td className="py-1">
               {entry.entryType === 'problem_note' && !entry.resolved && (
-                <button onClick={() => onResolve(entry.id)} className="text-xs underline">
+                <button onClick={() => onResolve(entry.id)} className="text-xs text-gold underline">
                   Mark resolved
                 </button>
               )}

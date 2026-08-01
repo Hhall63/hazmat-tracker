@@ -39,17 +39,17 @@ export function NewProblemForm({
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe the problem"
           required
-          className="flex-1 border px-2 py-1"
+          className="flex-1 rounded border border-gold/20 bg-panel px-2 py-1 text-ink"
         />
         <button
           type="submit"
           disabled={submitting || !updatedBy}
-          className="bg-red-600 text-white px-3 py-1 rounded disabled:opacity-50"
+          className="rounded bg-status-red px-3 py-1 text-ink disabled:opacity-50"
         >
           Log problem
         </button>
       </form>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {error && <p className="text-sm text-status-red">{error}</p>}
     </div>
   )
 }

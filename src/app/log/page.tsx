@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { DashboardHeader } from '@/components/DashboardHeader'
 import { LogTable } from '@/components/LogTable'
 import { NewProblemForm } from '@/components/NewProblemForm'
 import { useLocalName } from '@/hooks/useLocalName'
@@ -35,20 +36,27 @@ export default function LogPage() {
   }
 
   return (
-    <main className="p-6 max-w-3xl mx-auto">
-      <a href="/" className="text-sm underline">
-        ← Back to dashboard
-      </a>
-      <h1 className="text-2xl font-bold mb-4 mt-2">Activity Log</h1>
-      <label className="block mb-4 text-sm">
-        Your name
-        <input value={name} onChange={(e) => setName(e.target.value)} className="block border px-2 py-1" />
-      </label>
-      <div className="mb-6">
-        <NewProblemForm updatedBy={name} onAdded={refetch} />
-      </div>
-      {resolveError && <p className="text-red-600 text-sm mb-4">{resolveError}</p>}
-      <LogTable entries={entries} onResolve={handleResolve} />
-    </main>
+    <div className="min-h-screen">
+      <DashboardHeader subtitle="Engine 11 · Ladder 21 · RRT 5" />
+      <main className="mx-auto max-w-3xl p-6">
+        <a href="/" className="text-sm text-gold underline">
+          ← Back to dashboard
+        </a>
+        <h2 className="mb-4 mt-2 text-xl font-bold text-ink">Activity Log</h2>
+        <label className="mb-4 block text-sm text-ink-dim">
+          Your name
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mt-1 block rounded border border-gold/20 bg-panel px-2 py-1 text-ink"
+          />
+        </label>
+        <div className="mb-6">
+          <NewProblemForm updatedBy={name} onAdded={refetch} />
+        </div>
+        {resolveError && <p className="mb-4 text-sm text-status-red">{resolveError}</p>}
+        <LogTable entries={entries} onResolve={handleResolve} />
+      </main>
+    </div>
   )
 }
