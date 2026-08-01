@@ -57,4 +57,37 @@ describe('ScanTankPage', () => {
     render(<ScanTankPage params={{ id: 'missing' }} />)
     expect(await screen.findByText(/no longer active/i)).toBeInTheDocument()
   })
+
+  it('shows an error and keeps the form usable when the PSI update fails', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => tank })
+      .mockResolvedValueOnce({ ok: false, json: async () => ({}) })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<ScanTankPage params={{ id: 'tank-1' }} />)
+    await screen.findByText('Oxygen')
+
+    fireEvent.click(screen.getByText('Update PSI'))
+
+    await waitFor(() =>
+      expect(screen.getByText('Failed to save — please try again.')).toBeInTheDocument()
+    )
+    expect(screen.getByText('Update PSI')).not.toBeDisabled()
+  })
+
+  it('shows the "no longer active" state after a successful retire', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => tank })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ...tank, status: 'retired' }) })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<ScanTankPage params={{ id: 'tank-1' }} />)
+    await screen.findByText('Oxygen')
+
+    fireEvent.click(screen.getByText('Retire this tank'))
+
+    expect(await screen.findByText(/no longer active/i)).toBeInTheDocument()
+  })
 })

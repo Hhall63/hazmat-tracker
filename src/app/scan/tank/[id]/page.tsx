@@ -12,6 +12,7 @@ export default function ScanTankPage({ params }: { params: { id: string } }) {
   const [name] = useLocalName()
   const [problemText, setProblemText] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -41,38 +42,62 @@ export default function ScanTankPage({ params }: { params: { id: string } }) {
   async function updatePsi() {
     if (!tank) return
     setSubmitting(true)
-    await fetch(`/api/tanks/${tank.id}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ psi: Number(psi), updatedBy: name }),
-    })
-    setSubmitting(false)
+    setError('')
+    try {
+      const response = await fetch(`/api/tanks/${tank.id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ psi: Number(psi), updatedBy: name }),
+      })
+      if (!response.ok) throw new Error('Failed to update PSI')
+      const updated: Tank = await response.json()
+      setTank(updated)
+      setPsi(String(updated.psi))
+    } catch {
+      setError('Failed to save — please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   async function retire() {
     if (!tank) return
     setSubmitting(true)
-    await fetch(`/api/tanks/${tank.id}`, {
-      method: 'PATCH',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ status: 'retired' as TankStatus, updatedBy: name }),
-    })
-    setSubmitting(false)
+    setError('')
+    try {
+      const response = await fetch(`/api/tanks/${tank.id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ status: 'retired' as TankStatus, updatedBy: name }),
+      })
+      if (!response.ok) throw new Error('Failed to retire tank')
+      setNotFound(true)
+    } catch {
+      setError('Failed to save — please try again.')
+      setSubmitting(false)
+    }
   }
 
   async function logProblem() {
     if (!tank || !problemText) return
     setSubmitting(true)
-    await fetch('/api/logs', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        description: `${tank.gasType} (${tank.assignedMeter ?? 'unassigned'}): ${problemText}`,
-        createdBy: name,
-      }),
-    })
-    setSubmitting(false)
-    setProblemText('')
+    setError('')
+    try {
+      const response = await fetch('/api/logs', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          description: `${tank.gasType} (${tank.assignedMeter ?? 'unassigned'}): ${problemText}`,
+          createdBy: name,
+        }),
+      })
+      if (!response.ok) throw new Error('Failed to log problem')
+      setProblemText('')
+    } catch {
+      setError('Failed to save — please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (notFound) {
@@ -102,6 +127,8 @@ export default function ScanTankPage({ params }: { params: { id: string } }) {
           <p className="text-sm text-ink-dim">{tank.assignedMeter ?? 'Unassigned'}</p>
           <p className="font-mono text-3xl font-extrabold">{tank.psi} psi</p>
         </div>
+
+        {error && <p className="text-sm text-status-red">{error}</p>}
 
         <div>
           <label htmlFor="psi-input" className="block text-sm text-ink-dim">
