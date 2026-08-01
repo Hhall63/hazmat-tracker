@@ -56,48 +56,50 @@ export default function BoardPage() {
   const activeEquipment = equipment.filter((e) => e.status !== 'retired')
 
   return (
-    <main className="mx-auto flex h-[1920px] w-[1080px] flex-col overflow-hidden bg-bg">
-      <DashboardHeader subtitle="Engine 11 · Ladder 21 · RRT 5" />
-      <div ref={containerRef} className={`flex-1 space-y-3 ${DENSITY_PADDING[tier]}`}>
-        <StatBar tanks={tanks} equipment={equipment} logEntries={logEntries} />
-        <ProblemsBanner latestProblem={latestProblem} />
-        <section>
-          <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">Cylinders</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {activeTanks.map((tank) => (
-              <TankGauge key={tank.id} tank={tank} />
-            ))}
-          </div>
-        </section>
-        <section>
-          <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">Equipment</h2>
-          {EQUIPMENT_CATEGORIES.map((category) => {
-            const items = activeEquipment.filter((i) => i.category === category)
-            if (items.length === 0) return null
-            return (
-              <div key={category} className="mb-2">
-                <h3 className="text-[11px] font-semibold text-ink-dim">
-                  {CATEGORY_LABELS[category]}
-                </h3>
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between rounded-md border border-gold/20 bg-panel px-2 py-1"
-                  >
-                    <span>{item.name}</span>
-                    <span
-                      className={
-                        item.status === 'in_service' ? 'text-status-green' : 'text-status-red'
-                      }
+    <main className="mx-auto h-[1920px] w-[1080px] overflow-hidden bg-bg">
+      <div ref={containerRef}>
+        <DashboardHeader subtitle="Engine 11 · Ladder 21 · RRT 5" />
+        <div className={`space-y-3 ${DENSITY_PADDING[tier]}`}>
+          <StatBar tanks={tanks} equipment={equipment} logEntries={logEntries} />
+          <ProblemsBanner latestProblem={latestProblem} />
+          <section>
+            <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">Cylinders</h2>
+            <div className="grid grid-cols-2 gap-2">
+              {activeTanks.map((tank) => (
+                <TankGauge key={tank.id} tank={tank} />
+              ))}
+            </div>
+          </section>
+          <section>
+            <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">Equipment</h2>
+            {EQUIPMENT_CATEGORIES.map((category) => {
+              const items = activeEquipment.filter((i) => i.category === category)
+              if (items.length === 0) return null
+              return (
+                <div key={category} className="mb-2">
+                  <h3 className="text-[11px] font-semibold text-ink-dim">
+                    {CATEGORY_LABELS[category]}
+                  </h3>
+                  {items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between rounded-md border border-gold/20 bg-panel px-2 py-1"
                     >
-                      {item.status === 'in_service' ? 'In Service' : 'Out of Service'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )
-          })}
-        </section>
+                      <span>{item.name}</span>
+                      <span
+                        className={
+                          item.status === 'in_service' ? 'text-status-green' : 'text-status-red'
+                        }
+                      >
+                        {item.status === 'in_service' ? 'In Service' : 'Out of Service'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })}
+          </section>
+        </div>
       </div>
     </main>
   )
