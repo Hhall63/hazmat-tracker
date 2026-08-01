@@ -16,9 +16,9 @@ export function TankSection({
   const spares = tanks.filter((t) => t.status === 'spare')
 
   return (
-    <section>
-      <h2 className="text-xl font-semibold mb-2">Cylinders</h2>
-      <div className="flex flex-wrap gap-4">
+    <section className="rounded-lg border border-gold/20 bg-panel2 p-4">
+      <h2 className="mb-3 text-xs uppercase tracking-wide text-gold">Cylinders</h2>
+      <div className="flex flex-wrap gap-3">
         {inUse.map((tank) => (
           <div key={tank.id}>
             <TankGauge tank={tank} />
@@ -27,10 +27,10 @@ export function TankSection({
         ))}
       </div>
       <div className="mt-4">
-        <h3 className="font-medium">Spare tanks: {spares.length}</h3>
+        <h3 className="text-sm font-medium text-ink-dim">Spare tanks: {spares.length}</h3>
         <ul className="text-sm">
           {spares.map((tank) => (
-            <li key={tank.id} className="mb-1">
+            <li key={tank.id} className="mb-1 text-ink">
               {tank.gasType} — {tank.psi} psi
               <TankControls tank={tank} updatedBy={updatedBy} onChanged={onChanged} />
             </li>

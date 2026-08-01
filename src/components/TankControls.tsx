@@ -39,19 +39,23 @@ export function TankControls({
   }
 
   return (
-    <div className="flex gap-2 items-end mt-1">
-      <label className="flex flex-col text-xs">
+    <div className="mt-1 flex items-end gap-2 text-ink">
+      <label className="flex flex-col text-xs text-ink-dim">
         PSI
         <input
           type="number"
           value={psi}
           onChange={(e) => setPsi(e.target.value)}
-          className="w-20 border px-1"
+          className="w-20 rounded border border-gold/20 bg-panel px-1 text-ink"
         />
       </label>
-      <label className="flex flex-col text-xs">
+      <label className="flex flex-col text-xs text-ink-dim">
         Status
-        <select value={status} onChange={(e) => setStatus(e.target.value as TankStatus)}>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value as TankStatus)}
+          className="rounded border border-gold/20 bg-panel text-ink"
+        >
           <option value="in_use">In use</option>
           <option value="spare">Spare</option>
         </select>
@@ -59,14 +63,14 @@ export function TankControls({
       <button
         onClick={handleSave}
         disabled={submitting || !updatedBy}
-        className="text-xs underline disabled:opacity-50"
+        className="text-xs text-gold underline disabled:opacity-50"
       >
         Save
       </button>
       <button
         onClick={handleRetire}
         disabled={submitting || !updatedBy}
-        className="text-xs text-red-600 underline disabled:opacity-50"
+        className="text-xs text-status-red underline disabled:opacity-50"
       >
         Retire
       </button>
