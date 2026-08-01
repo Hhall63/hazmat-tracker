@@ -35,15 +35,21 @@ export function AddEquipmentForm({
     onAdded()
   }
 
+  const inputClass = 'rounded border border-gold/20 bg-panel px-2 py-1 text-ink'
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 items-end">
+    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-2 text-ink-dim">
       <label className="flex flex-col text-sm">
         Name
-        <input value={name} onChange={(e) => setName(e.target.value)} required />
+        <input value={name} onChange={(e) => setName(e.target.value)} required className={inputClass} />
       </label>
       <label className="flex flex-col text-sm">
         Category
-        <select value={category} onChange={(e) => setCategory(e.target.value as EquipmentCategory)}>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value as EquipmentCategory)}
+          className={inputClass}
+        >
           {EQUIPMENT_CATEGORIES.map((c) => (
             <option key={c} value={c}>
               {CATEGORY_LABELS[c]}
@@ -54,7 +60,7 @@ export function AddEquipmentForm({
       <button
         type="submit"
         disabled={submitting || !updatedBy}
-        className="bg-blue-600 text-white px-3 py-1 rounded disabled:opacity-50"
+        className="rounded bg-gold px-3 py-1 text-bg disabled:opacity-50"
       >
         Add equipment
       </button>
