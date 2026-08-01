@@ -22,21 +22,21 @@ export function TankGauge({ tank }: { tank: Tank }) {
     >
       <svg width="120" height="70" viewBox="0 0 120 70">
         <path
-          d="M10,60 A50,50 0 0 1 40,15"
+          d="M10,60 A50,50 0 0 1 24.64,24.64"
           fill="none"
           stroke={ZONE_HEX.red}
           strokeWidth="9"
           strokeLinecap="round"
         />
         <path
-          d="M40,15 A50,50 0 0 1 80,15"
+          d="M24.64,24.64 A50,50 0 0 1 60,10"
           fill="none"
           stroke={ZONE_HEX.yellow}
           strokeWidth="9"
           strokeLinecap="round"
         />
         <path
-          d="M80,15 A50,50 0 0 1 110,60"
+          d="M60,10 A50,50 0 0 1 110,60"
           fill="none"
           stroke={ZONE_HEX.green}
           strokeWidth="9"
