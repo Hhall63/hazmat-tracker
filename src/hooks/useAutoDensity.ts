@@ -14,7 +14,7 @@ export function useAutoDensity(
     if (!el) return
     const next = chooseDensityTier(el.scrollHeight, viewportHeight, tier)
     if (next) setTier(next)
-  }, [viewportHeight])
+  })
 
   return tier
 }

@@ -23,8 +23,44 @@ describe('useAutoDensity', () => {
   })
 
   it('steps down to compact when content overflows comfortable', () => {
-    const { result, rerender } = renderWithHeight(2200, 1920)
-    rerender()
+    // scrollHeight shrinks once the tier steps to 'compact', simulating a
+    // real re-render with denser content that then fits the viewport.
+    let readCount = 0
+    const heightsByRead = [2200, 1800] // comfortable-run (overflows), compact-run (fits)
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'scrollHeight', {
+      get: () => heightsByRead[Math.min(readCount++, heightsByRead.length - 1)],
+      configurable: true,
+    })
+
+    const { result } = renderHook(() => {
+      const ref = useRef<HTMLDivElement>(el)
+      return useAutoDensity(ref, 1920)
+    })
+
     expect(result.current).toBe('compact')
+  })
+
+  it('steps down through multiple tiers in one settle when content keeps overflowing', () => {
+    let readCount = 0
+    const heightsByRead = [3000, 2200, 1800] // comfortable-run, compact-run (still over), dense-run (fits)
+    const el = document.createElement('div')
+    Object.defineProperty(el, 'scrollHeight', {
+      get: () => heightsByRead[Math.min(readCount++, heightsByRead.length - 1)],
+      configurable: true,
+    })
+
+    const { result, rerender } = renderHook(
+      ({ viewportHeight }) => {
+        const ref = useRef<HTMLDivElement>(el)
+        return useAutoDensity(ref, viewportHeight)
+      },
+      { initialProps: { viewportHeight: 1920 } }
+    )
+
+    rerender({ viewportHeight: 1920 })
+    rerender({ viewportHeight: 1920 })
+
+    expect(result.current).toBe('dense')
   })
 })
