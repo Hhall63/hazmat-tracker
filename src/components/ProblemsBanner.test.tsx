@@ -4,9 +4,9 @@ import { ProblemsBanner } from './ProblemsBanner'
 import type { LogEntry } from '@/lib/types'
 
 describe('ProblemsBanner', () => {
-  it('shows a placeholder when there are no open problems', () => {
-    render(<ProblemsBanner latestProblem={null} />)
-    expect(screen.getByText('No open problems.')).toBeInTheDocument()
+  it('renders nothing when there are no open problems', () => {
+    const { container } = render(<ProblemsBanner latestProblem={null} />)
+    expect(container).toBeEmptyDOMElement()
   })
 
   it('shows the description and a name/date footnote', () => {
