@@ -21,4 +21,21 @@ describe('mergeSettings', () => {
     expect(merged.layout.dashboard).toEqual([{ key: 'stats', visible: false }])
     expect(merged.layout.board).toEqual(DEFAULT_SETTINGS.layout.board)
   })
+
+  it('deep-merges partial nested sub-objects, keeping sibling fields at their defaults', () => {
+    const merged = mergeSettings({ scanActions: { tankDefaults: { psi: false } } })
+    expect(merged.scanActions.tankDefaults).toEqual({
+      psi: false,
+      status: true,
+      logProblem: true,
+      retire: true,
+    })
+    expect(merged.scanActions.equipmentDefaults).toEqual(DEFAULT_SETTINGS.scanActions.equipmentDefaults)
+    expect(merged.scanActions.overrides).toEqual(DEFAULT_SETTINGS.scanActions.overrides)
+  })
+
+  it('falls back to the default section when the incoming value is not a plain object', () => {
+    expect(mergeSettings({ branding: null }).branding).toEqual(DEFAULT_SETTINGS.branding)
+    expect(mergeSettings({ branding: [] }).branding).toEqual(DEFAULT_SETTINGS.branding)
+  })
 })
