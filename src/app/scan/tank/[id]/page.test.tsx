@@ -90,4 +90,17 @@ describe('ScanTankPage', () => {
 
     expect(await screen.findByText(/no longer active/i)).toBeInTheDocument()
   })
+
+  it('shows a name input; entering a name enables the disabled Update PSI button', async () => {
+    window.localStorage.clear()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => tank }))
+    render(<ScanTankPage params={{ id: 'tank-1' }} />)
+    await screen.findByText('Oxygen')
+
+    expect(screen.getByText('Update PSI')).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('Your name'), { target: { value: 'A. Lee' } })
+
+    expect(screen.getByText('Update PSI')).not.toBeDisabled()
+  })
 })

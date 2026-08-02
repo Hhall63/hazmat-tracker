@@ -16,10 +16,12 @@ export function AddTankForm({
   const [maxPsi, setMaxPsi] = useState('')
   const [status, setStatus] = useState<TankStatus>('in_use')
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setSubmitting(true)
+    setError('')
     const input: NewTankInput = {
       gasType,
       assignedMeter: assignedMeter || null,
@@ -28,17 +30,23 @@ export function AddTankForm({
       status,
       createdBy: updatedBy,
     }
-    await fetch('/api/tanks', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(input),
-    })
-    setSubmitting(false)
-    setGasType('')
-    setAssignedMeter('')
-    setPsi('')
-    setMaxPsi('')
-    onAdded()
+    try {
+      const response = await fetch('/api/tanks', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      if (!response.ok) throw new Error('Failed to add tank')
+      setGasType('')
+      setAssignedMeter('')
+      setPsi('')
+      setMaxPsi('')
+      onAdded()
+    } catch {
+      setError('Failed to save — please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const inputClass = 'rounded border border-gold/20 bg-panel px-2 py-1 text-ink'
@@ -100,6 +108,7 @@ export function AddTankForm({
       >
         Add tank
       </button>
+      {error && <p className="w-full text-xs text-status-red">{error}</p>}
     </form>
   )
 }

@@ -15,7 +15,7 @@ const tank: Tank = {
 }
 
 beforeEach(() => {
-  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: async () => tank }))
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => tank }))
 })
 
 describe('TankControls', () => {
@@ -52,5 +52,17 @@ describe('TankControls', () => {
         body: JSON.stringify({ status: 'retired', updatedBy: 'A. Lee' }),
       })
     )
+  })
+
+  it('shows an error and re-enables Save when the request fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) }))
+    const onChanged = vi.fn()
+    render(<TankControls tank={tank} updatedBy="A. Lee" onChanged={onChanged} />)
+    fireEvent.click(screen.getByText('Save'))
+    await waitFor(() =>
+      expect(screen.getByText('Failed to save — please try again.')).toBeInTheDocument()
+    )
+    expect(onChanged).not.toHaveBeenCalled()
+    expect(screen.getByText('Save')).not.toBeDisabled()
   })
 })

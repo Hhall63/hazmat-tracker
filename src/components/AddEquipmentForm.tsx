@@ -15,24 +15,32 @@ export function AddEquipmentForm({
   const [name, setName] = useState('')
   const [category, setCategory] = useState<EquipmentCategory>('meter_detector')
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setSubmitting(true)
+    setError('')
     const input: NewEquipmentInput = {
       name,
       category,
       status: 'in_service',
       createdBy: updatedBy,
     }
-    await fetch('/api/equipment', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(input),
-    })
-    setSubmitting(false)
-    setName('')
-    onAdded()
+    try {
+      const response = await fetch('/api/equipment', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+      if (!response.ok) throw new Error('Failed to add equipment')
+      setName('')
+      onAdded()
+    } catch {
+      setError('Failed to save — please try again.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const inputClass = 'rounded border border-gold/20 bg-panel px-2 py-1 text-ink'
@@ -64,6 +72,7 @@ export function AddEquipmentForm({
       >
         Add equipment
       </button>
+      {error && <p className="w-full text-xs text-status-red">{error}</p>}
     </form>
   )
 }

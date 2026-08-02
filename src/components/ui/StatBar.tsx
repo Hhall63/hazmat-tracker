@@ -24,7 +24,11 @@ export function StatBar({
         label="Tanks Low"
         tone={stats.lowTanks > 0 ? 'warn' : 'ok'}
       />
-      <StatTile value={stats.equipmentInService} label="Equipment In Service" tone="ok" />
+      <StatTile
+        value={stats.equipmentInService}
+        label="Equipment In Service"
+        tone={stats.equipmentInService > 0 ? 'ok' : 'bad'}
+      />
     </div>
   )
 }

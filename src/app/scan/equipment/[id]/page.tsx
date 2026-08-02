@@ -8,7 +8,7 @@ import type { EquipmentItem, EquipmentStatus } from '@/lib/types'
 export default function ScanEquipmentPage({ params }: { params: { id: string } }) {
   const [item, setItem] = useState<EquipmentItem | null>(null)
   const [notFound, setNotFound] = useState(false)
-  const [name] = useLocalName()
+  const [name, setName] = useLocalName()
   const [problemText, setProblemText] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -122,6 +122,15 @@ export default function ScanEquipmentPage({ params }: { params: { id: string } }
     <div className="min-h-screen">
       <DashboardHeader />
       <main className="mx-auto max-w-sm space-y-6 p-6 text-ink">
+        <label className="block text-sm text-ink-dim">
+          Your name
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mt-1 block w-full rounded border border-gold/20 bg-panel px-3 py-2 text-ink"
+          />
+        </label>
+
         <div>
           <h2 className="text-lg font-bold">{item.name}</h2>
           <p className={item.status === 'in_service' ? 'text-status-green' : 'text-status-red'}>

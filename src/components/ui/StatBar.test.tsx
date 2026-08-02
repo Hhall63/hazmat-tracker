@@ -46,4 +46,11 @@ describe('StatBar', () => {
     expect(screen.getByText('Equipment In Service')).toBeInTheDocument()
     expect(screen.getAllByText('1')).toHaveLength(3)
   })
+
+  it('renders a bad tone for Equipment In Service when the count is zero', () => {
+    render(<StatBar tanks={[]} equipment={[]} logEntries={[]} />)
+    const labelEl = screen.getByText('Equipment In Service')
+    const valueEl = labelEl.previousElementSibling
+    expect(valueEl).toHaveClass('text-status-red')
+  })
 })

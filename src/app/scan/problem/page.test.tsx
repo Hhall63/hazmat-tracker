@@ -32,4 +32,18 @@ describe('ScanProblemPage', () => {
       )
     )
   })
+
+  it('shows a name input when no name is stored; entering a name enables Log problem', () => {
+    window.localStorage.clear()
+    render(<ScanProblemPage />)
+
+    fireEvent.change(screen.getByPlaceholderText('Describe the problem'), {
+      target: { value: 'Deluge shower valve stuck' },
+    })
+    expect(screen.getByText('Log problem')).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('Your name'), { target: { value: 'A. Lee' } })
+
+    expect(screen.getByText('Log problem')).not.toBeDisabled()
+  })
 })

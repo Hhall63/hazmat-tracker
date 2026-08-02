@@ -9,7 +9,7 @@ export default function ScanTankPage({ params }: { params: { id: string } }) {
   const [tank, setTank] = useState<Tank | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [psi, setPsi] = useState('')
-  const [name] = useLocalName()
+  const [name, setName] = useLocalName()
   const [problemText, setProblemText] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -122,6 +122,15 @@ export default function ScanTankPage({ params }: { params: { id: string } }) {
     <div className="min-h-screen">
       <DashboardHeader />
       <main className="mx-auto max-w-sm space-y-6 p-6 text-ink">
+        <label className="block text-sm text-ink-dim">
+          Your name
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="mt-1 block w-full rounded border border-gold/20 bg-panel px-3 py-2 text-ink"
+          />
+        </label>
+
         <div>
           <h2 className="text-lg font-bold">{tank.gasType}</h2>
           <p className="text-sm text-ink-dim">{tank.assignedMeter ?? 'Unassigned'}</p>

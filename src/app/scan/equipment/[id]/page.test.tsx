@@ -87,4 +87,17 @@ describe('ScanEquipmentPage', () => {
 
     expect(await screen.findByText(/no longer active/i)).toBeInTheDocument()
   })
+
+  it('shows a name input; entering a name enables the disabled toggle button', async () => {
+    window.localStorage.clear()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => item }))
+    render(<ScanEquipmentPage params={{ id: 'eq-1' }} />)
+    await screen.findByText('Air Monitor — MultiRAE #2')
+
+    expect(screen.getByText('Mark Out of Service')).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('Your name'), { target: { value: 'A. Lee' } })
+
+    expect(screen.getByText('Mark Out of Service')).not.toBeDisabled()
+  })
 })

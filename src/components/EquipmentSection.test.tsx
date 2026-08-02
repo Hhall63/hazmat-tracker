@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { EquipmentSection } from './EquipmentSection'
 import type { EquipmentItem } from '@/lib/types'
 
@@ -45,5 +45,18 @@ describe('EquipmentSection', () => {
     render(<EquipmentSection items={items} updatedBy="A. Lee" onChanged={() => {}} />)
     expect(screen.getByLabelText('Name')).toBeInTheDocument()
     expect(screen.getByText('Add equipment')).toBeInTheDocument()
+  })
+
+  it('shows an error and does not call onChanged when a toggle request fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) }))
+    const onChanged = vi.fn()
+    render(<EquipmentSection items={items} updatedBy="A. Lee" onChanged={onChanged} />)
+
+    fireEvent.click(screen.getAllByText('Toggle')[0])
+
+    await waitFor(() =>
+      expect(screen.getByText('Failed to save — please try again.')).toBeInTheDocument()
+    )
+    expect(onChanged).not.toHaveBeenCalled()
   })
 })
