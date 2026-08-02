@@ -1,3 +1,7 @@
+'use client'
+
+import { useValueHighlight } from '@/hooks/useValueHighlight'
+
 export type StatTone = 'bad' | 'warn' | 'ok' | 'neutral'
 
 const TONE_CLASSES: Record<StatTone, string> = {
@@ -16,8 +20,14 @@ export function StatTile({
   label: string
   tone?: StatTone
 }) {
+  const highlighted = useValueHighlight(value)
+
   return (
-    <div className="rounded-lg border border-gold/20 bg-panel px-3 py-2">
+    <div
+      className={`rounded-lg border px-3 py-2 transition-colors duration-200 motion-reduce:transition-none ${
+        highlighted ? 'border-gold-bright bg-panel2' : 'border-gold/20 bg-panel'
+      }`}
+    >
       <div className={`font-mono text-2xl font-extrabold leading-none ${TONE_CLASSES[tone]}`}>
         {value}
       </div>
