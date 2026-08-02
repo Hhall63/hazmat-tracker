@@ -38,4 +38,10 @@ describe('mergeSettings', () => {
     expect(mergeSettings({ branding: null }).branding).toEqual(DEFAULT_SETTINGS.branding)
     expect(mergeSettings({ branding: [] }).branding).toEqual(DEFAULT_SETTINGS.branding)
   })
+
+  it('preserves arbitrary scanActions.overrides entries even though the default is {}, while keeping sibling defaults', () => {
+    const merged = mergeSettings({ scanActions: { overrides: { tank1: { retire: false } } } })
+    expect(merged.scanActions.overrides.tank1).toEqual({ retire: false })
+    expect(merged.scanActions.tankDefaults).toEqual(DEFAULT_SETTINGS.scanActions.tankDefaults)
+  })
 })
