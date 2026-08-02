@@ -8,6 +8,7 @@ const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '700'], variabl
 export const metadata = {
   title: 'HAZMAT Inventory Dashboard',
   themeColor: '#0a1120',
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
