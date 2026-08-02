@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { InMemoryRepository } from './repository'
+import { DEFAULT_SETTINGS } from './settings/types'
 
 describe('InMemoryRepository', () => {
   it('inserts and lists tanks', async () => {
@@ -118,5 +119,19 @@ describe('InMemoryRepository', () => {
     third.createdAt = sameTimestamp
 
     expect((await repo.getLogEntries()).map((e) => e.id)).toEqual([third.id, second.id, first.id])
+  })
+})
+
+describe('InMemoryRepository settings', () => {
+  it('returns null before anything is saved', async () => {
+    const repo = new InMemoryRepository()
+    expect(await repo.getSettings()).toBeNull()
+  })
+
+  it('round-trips saved settings', async () => {
+    const repo = new InMemoryRepository()
+    const next = { ...DEFAULT_SETTINGS, branding: { ...DEFAULT_SETTINGS.branding, title: 'X' } }
+    await repo.saveSettings(next, 'Chief')
+    expect(await repo.getSettings()).toEqual(next)
   })
 })

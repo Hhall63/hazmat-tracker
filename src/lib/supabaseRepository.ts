@@ -8,6 +8,7 @@ import type {
   NewTankInput,
   Tank,
 } from './types'
+import type { AppSettings } from './settings/types'
 import { getSupabaseClient } from './supabaseClient'
 
 export function mapRowToTank(row: any): Tank {
@@ -188,5 +189,27 @@ export class SupabaseRepository implements Repository {
       .single()
     if (error) throw error
     return mapRowToLogEntry(data)
+  }
+
+  async getSettings(): Promise<unknown | null> {
+    const { data, error } = await this.client
+      .from('app_settings')
+      .select('config')
+      .eq('id', 'singleton')
+      .maybeSingle()
+    if (error) throw error
+    return data?.config ?? null
+  }
+
+  async saveSettings(config: AppSettings, updatedBy: string): Promise<void> {
+    const { error } = await this.client
+      .from('app_settings')
+      .upsert({
+        id: 'singleton',
+        config,
+        updated_by: updatedBy,
+        updated_at: new Date().toISOString(),
+      })
+    if (error) throw error
   }
 }

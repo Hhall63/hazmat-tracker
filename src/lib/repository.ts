@@ -6,6 +6,7 @@ import type {
   NewTankInput,
   Tank,
 } from './types'
+import type { AppSettings } from './settings/types'
 
 export interface Repository {
   getTanks(): Promise<Tank[]>
@@ -29,12 +30,16 @@ export interface Repository {
   getLogEntries(): Promise<LogEntry[]>
   insertLogEntry(input: NewLogEntryInput): Promise<LogEntry>
   resolveLogEntry(id: string): Promise<LogEntry>
+
+  getSettings(): Promise<unknown | null>
+  saveSettings(config: AppSettings, updatedBy: string): Promise<void>
 }
 
 export class InMemoryRepository implements Repository {
   private tanks: Tank[] = []
   private equipmentItems: EquipmentItem[] = []
   private logEntries: LogEntry[] = []
+  private settings: AppSettings | null = null
 
   async getTanks(): Promise<Tank[]> {
     return [...this.tanks]
@@ -137,5 +142,13 @@ export class InMemoryRepository implements Repository {
     const updated: LogEntry = { ...existing, resolved: true }
     this.logEntries = this.logEntries.map((e) => (e.id === id ? updated : e))
     return updated
+  }
+
+  async getSettings(): Promise<unknown | null> {
+    return this.settings
+  }
+
+  async saveSettings(config: AppSettings, _updatedBy: string): Promise<void> {
+    this.settings = config
   }
 }
