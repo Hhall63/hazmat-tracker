@@ -14,7 +14,7 @@ function isPlainObject(v: unknown): v is Record<string, unknown> {
  *  is intentional -- it's required so Record-shaped sections (e.g. scanActions.overrides, whose
  *  default is `{}`) keep arbitrary incoming entries -- and is safe because all consumers read
  *  typed fields only. */
-function deepMerge<T>(base: T, incoming: unknown): T {
+export function deepMerge<T>(base: T, incoming: unknown): T {
   if (!isPlainObject(base)) return (incoming === undefined ? base : (incoming as T))
   if (!isPlainObject(incoming)) return base
   const result = { ...(base as Record<string, unknown>) }

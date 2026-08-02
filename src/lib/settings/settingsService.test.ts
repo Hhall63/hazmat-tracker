@@ -17,4 +17,20 @@ describe('settingsService', () => {
     // stored value is the full merged object, so later reads are complete
     expect(await getMergedSettings(repo)).toEqual(saved)
   })
+
+  it('preserves sibling nested customizations across successive partial saves', async () => {
+    const repo = new InMemoryRepository()
+    await saveMergedSettings(
+      repo,
+      { scanActions: { tankDefaults: { psi: false, status: true, logProblem: true, retire: true } } },
+      'Chief'
+    )
+    const saved = await saveMergedSettings(
+      repo,
+      { scanActions: { overrides: { tag1: { retire: false } } } },
+      'Chief'
+    )
+    expect(saved.scanActions.tankDefaults.psi).toBe(false)
+    expect(saved.scanActions.overrides.tag1.retire).toBe(false)
+  })
 })

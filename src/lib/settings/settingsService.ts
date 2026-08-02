@@ -1,5 +1,5 @@
 import type { Repository } from '../repository'
-import { mergeSettings } from './mergeSettings'
+import { deepMerge, mergeSettings } from './mergeSettings'
 import type { AppSettings } from './types'
 
 export async function getMergedSettings(repo: Repository): Promise<AppSettings> {
@@ -13,7 +13,7 @@ export async function saveMergedSettings(
   updatedBy: string
 ): Promise<AppSettings> {
   const current = await getMergedSettings(repo)
-  const merged = mergeSettings({ ...current, ...(incoming as object) })
+  const merged = mergeSettings(deepMerge(current, incoming))
   await repo.saveSettings(merged, updatedBy)
   return merged
 }
