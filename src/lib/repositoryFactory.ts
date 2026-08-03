@@ -19,6 +19,10 @@ export function getRepository(): Repository {
 }
 
 export function getAdminRepository(): Repository {
+  // Tests may set a dedicated admin override, but usually set only the shared
+  // testOverride via __setRepositoryForTests — honor that too so route tests can
+  // point both getRepository and getAdminRepository at one InMemoryRepository.
   if (adminTestOverride) return adminTestOverride
+  if (testOverride) return testOverride
   return new SupabaseRepository(getSupabaseAdminClient())
 }
