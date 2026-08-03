@@ -135,3 +135,12 @@ describe('InMemoryRepository settings', () => {
     expect(await repo.getSettings()).toEqual(next)
   })
 })
+
+describe('InMemoryRepository admin config', () => {
+  it('returns null hash by default and round-trips a set hash', async () => {
+    const repo = new InMemoryRepository()
+    expect(await repo.getAdminPasscodeHash()).toBeNull()
+    await repo.setAdminPasscodeHash('salt:hash')
+    expect(await repo.getAdminPasscodeHash()).toBe('salt:hash')
+  })
+})

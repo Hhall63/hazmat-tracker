@@ -33,6 +33,9 @@ export interface Repository {
 
   getSettings(): Promise<unknown | null>
   saveSettings(config: AppSettings, updatedBy: string): Promise<void>
+
+  getAdminPasscodeHash(): Promise<string | null>
+  setAdminPasscodeHash(hash: string): Promise<void>
 }
 
 export class InMemoryRepository implements Repository {
@@ -40,6 +43,7 @@ export class InMemoryRepository implements Repository {
   private equipmentItems: EquipmentItem[] = []
   private logEntries: LogEntry[] = []
   private settings: AppSettings | null = null
+  private adminPasscodeHash: string | null = null
 
   async getTanks(): Promise<Tank[]> {
     return [...this.tanks]
@@ -150,5 +154,13 @@ export class InMemoryRepository implements Repository {
 
   async saveSettings(config: AppSettings, _updatedBy: string): Promise<void> {
     this.settings = config
+  }
+
+  async getAdminPasscodeHash(): Promise<string | null> {
+    return this.adminPasscodeHash
+  }
+
+  async setAdminPasscodeHash(hash: string): Promise<void> {
+    this.adminPasscodeHash = hash
   }
 }

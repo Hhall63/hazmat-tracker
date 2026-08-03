@@ -212,4 +212,21 @@ export class SupabaseRepository implements Repository {
       })
     if (error) throw error
   }
+
+  async getAdminPasscodeHash(): Promise<string | null> {
+    const { data, error } = await this.client
+      .from('admin_config')
+      .select('passcode_hash')
+      .eq('id', 'singleton')
+      .maybeSingle()
+    if (error) throw error
+    return data?.passcode_hash ?? null
+  }
+
+  async setAdminPasscodeHash(hash: string): Promise<void> {
+    const { error } = await this.client
+      .from('admin_config')
+      .upsert({ id: 'singleton', passcode_hash: hash, updated_at: new Date().toISOString() })
+    if (error) throw error
+  }
 }
