@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import ScanProblemPage from './page'
 
+vi.mock('@/hooks/useAppSettings', async () => {
+  const mod = (await vi.importActual('@/lib/settings/types')) as typeof import('@/lib/settings/types')
+  return { useAppSettings: () => mod.DEFAULT_SETTINGS }
+})
+
 beforeEach(() => {
   window.localStorage.clear()
   window.localStorage.setItem('hazmat-dashboard-name', 'A. Lee')
