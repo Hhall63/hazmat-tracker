@@ -16,7 +16,13 @@ describe('passcode hashing', () => {
     expect(hashPasscode('same')).not.toBe(hashPasscode('same'))
   })
 
-  it('returns false for malformed stored values', () => {
-    expect(verifyPasscode('x', 'not-a-valid-format')).toBe(false)
+  it('returns false (never throws) for malformed stored values', () => {
+    // These attacker-controllable shapes must all resolve to false without throwing,
+    // so verifyPasscode is total on any string input.
+    expect(verifyPasscode('x', 'not-a-valid-format')).toBe(false) // no colon
+    expect(verifyPasscode('x', '')).toBe(false) // empty
+    expect(verifyPasscode('x', 'abc:zzzz')).toBe(false) // non-hex hash → 0-byte buffer, length mismatch
+    expect(verifyPasscode('x', 'a:b:c')).toBe(false) // extra colons → short buffer
+    expect(verifyPasscode('x', ':')).toBe(false) // empty salt and hash
   })
 })
