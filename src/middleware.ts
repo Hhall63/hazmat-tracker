@@ -11,7 +11,9 @@ export async function middleware(request: NextRequest) {
 
   const secret = process.env.ADMIN_SESSION_SECRET ?? ''
   const token = request.cookies.get('hazmat_admin')?.value
-  const ok = token ? await verifySessionToken(token, secret, Date.now()) : false
+  // Fail CLOSED if the secret is unset/empty: otherwise verifySessionToken would
+  // key the HMAC with '' and anyone could forge a valid token on a misconfigured deploy.
+  const ok = secret && token ? await verifySessionToken(token, secret, Date.now()) : false
   if (ok) return NextResponse.next()
 
   if (pathname.startsWith('/api/admin')) {
