@@ -2,10 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import ScanTankPage from './page'
 import type { Tank } from '@/lib/types'
+import { DEFAULT_SETTINGS } from '@/lib/settings/types'
+
+// Mutable settings the mock returns; tests can override before render.
+const state = vi.hoisted(() => ({ override: null as null | object }))
 
 vi.mock('@/hooks/useAppSettings', async () => {
   const mod = (await vi.importActual('@/lib/settings/types')) as typeof import('@/lib/settings/types')
-  return { useAppSettings: () => mod.DEFAULT_SETTINGS }
+  return { useAppSettings: () => state.override ?? mod.DEFAULT_SETTINGS }
 })
 
 const tank: Tank = {
@@ -20,6 +24,7 @@ const tank: Tank = {
 }
 
 beforeEach(() => {
+  state.override = null
   window.localStorage.clear()
   window.localStorage.setItem('hazmat-dashboard-name', 'A. Lee')
 })
@@ -107,5 +112,19 @@ describe('ScanTankPage', () => {
     fireEvent.change(screen.getByLabelText('Your name'), { target: { value: 'A. Lee' } })
 
     expect(screen.getByText('Update PSI')).not.toBeDisabled()
+  })
+
+  it('hides the retire action when the config disables it for this tank', async () => {
+    state.override = {
+      ...DEFAULT_SETTINGS,
+      scanActions: {
+        ...DEFAULT_SETTINGS.scanActions,
+        overrides: { 'tank-1': { retire: false } },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => tank }))
+    render(<ScanTankPage params={{ id: 'tank-1' }} />)
+    await screen.findByText('Oxygen')
+    expect(screen.queryByText(/retire this tank/i)).not.toBeInTheDocument()
   })
 })

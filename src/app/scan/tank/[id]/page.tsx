@@ -3,9 +3,13 @@
 import { useEffect, useState } from 'react'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { useLocalName } from '@/hooks/useLocalName'
+import { useAppSettings } from '@/hooks/useAppSettings'
+import { resolveTankActions } from '@/lib/settings/resolveScanActions'
 import type { Tank, TankStatus } from '@/lib/types'
 
 export default function ScanTankPage({ params }: { params: { id: string } }) {
+  const settings = useAppSettings()
+  const actions = resolveTankActions(settings, params.id)
   const [tank, setTank] = useState<Tank | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [psi, setPsi] = useState('')
@@ -139,53 +143,59 @@ export default function ScanTankPage({ params }: { params: { id: string } }) {
 
         {error && <p className="text-sm text-status-red">{error}</p>}
 
-        <div>
-          <label htmlFor="psi-input" className="block text-sm text-ink-dim">
-            PSI
-          </label>
-          <input
-            id="psi-input"
-            aria-label="PSI"
-            type="number"
-            value={psi}
-            onChange={(e) => setPsi(e.target.value)}
-            className="mt-1 w-full rounded border border-gold/20 bg-panel px-3 py-2 text-2xl text-ink"
-          />
+        {actions.psi && (
+          <div>
+            <label htmlFor="psi-input" className="block text-sm text-ink-dim">
+              PSI
+            </label>
+            <input
+              id="psi-input"
+              aria-label="PSI"
+              type="number"
+              value={psi}
+              onChange={(e) => setPsi(e.target.value)}
+              className="mt-1 w-full rounded border border-gold/20 bg-panel px-3 py-2 text-2xl text-ink"
+            />
+            <button
+              onClick={updatePsi}
+              disabled={submitting || !name}
+              className="mt-2 w-full rounded bg-gold px-4 py-3 text-lg font-bold text-bg disabled:opacity-50"
+            >
+              Update PSI
+            </button>
+          </div>
+        )}
+
+        {actions.logProblem && (
+          <div>
+            <label htmlFor="problem-input" className="block text-sm text-ink-dim">
+              Log a problem with this tank
+            </label>
+            <input
+              id="problem-input"
+              value={problemText}
+              onChange={(e) => setProblemText(e.target.value)}
+              className="mt-1 w-full rounded border border-gold/20 bg-panel px-3 py-2 text-ink"
+            />
+            <button
+              onClick={logProblem}
+              disabled={submitting || !name || !problemText}
+              className="mt-2 w-full rounded bg-status-red px-4 py-2 text-ink disabled:opacity-50"
+            >
+              Log problem
+            </button>
+          </div>
+        )}
+
+        {actions.retire && (
           <button
-            onClick={updatePsi}
+            onClick={retire}
             disabled={submitting || !name}
-            className="mt-2 w-full rounded bg-gold px-4 py-3 text-lg font-bold text-bg disabled:opacity-50"
+            className="text-xs text-status-red underline disabled:opacity-50"
           >
-            Update PSI
+            Retire this tank
           </button>
-        </div>
-
-        <div>
-          <label htmlFor="problem-input" className="block text-sm text-ink-dim">
-            Log a problem with this tank
-          </label>
-          <input
-            id="problem-input"
-            value={problemText}
-            onChange={(e) => setProblemText(e.target.value)}
-            className="mt-1 w-full rounded border border-gold/20 bg-panel px-3 py-2 text-ink"
-          />
-          <button
-            onClick={logProblem}
-            disabled={submitting || !name || !problemText}
-            className="mt-2 w-full rounded bg-status-red px-4 py-2 text-ink disabled:opacity-50"
-          >
-            Log problem
-          </button>
-        </div>
-
-        <button
-          onClick={retire}
-          disabled={submitting || !name}
-          className="text-xs text-status-red underline disabled:opacity-50"
-        >
-          Retire this tank
-        </button>
+        )}
       </main>
     </div>
   )
