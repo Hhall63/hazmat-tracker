@@ -3,6 +3,8 @@ import { getRepository } from '@/lib/repositoryFactory'
 import { addTank } from '@/lib/services/tankService'
 import type { NewTankInput } from '@/lib/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const repo = getRepository()
   const tanks = await repo.getTanks()

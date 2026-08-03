@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getRepository } from '@/lib/repositoryFactory'
 import { addProblemNote } from '@/lib/services/logService'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const repo = getRepository()
   const entries = await repo.getLogEntries()

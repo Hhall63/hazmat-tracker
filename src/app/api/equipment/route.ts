@@ -3,6 +3,8 @@ import { getRepository } from '@/lib/repositoryFactory'
 import { addEquipmentItem } from '@/lib/services/equipmentService'
 import type { NewEquipmentInput } from '@/lib/types'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const repo = getRepository()
   const items = await repo.getEquipmentItems()
