@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import DashboardPage from './page'
+import { DEFAULT_SETTINGS } from '@/lib/settings/types'
 
 vi.mock('@/lib/supabaseClient', () => ({
   getSupabaseClient: () => ({
@@ -33,5 +34,23 @@ describe('DashboardPage', () => {
     await screen.findByTestId('stat-bar')
     expect(screen.getByText('View full activity log →')).toHaveAttribute('href', '/log')
     expect(screen.getByText('Print QR labels →')).toHaveAttribute('href', '/labels')
+  })
+
+  it('omits sections marked not visible', async () => {
+    const hidden = {
+      ...DEFAULT_SETTINGS,
+      layout: {
+        ...DEFAULT_SETTINGS.layout,
+        dashboard: DEFAULT_SETTINGS.layout.dashboard.map((s) =>
+          s.key === 'equipment' ? { ...s, visible: false } : s
+        ),
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn().mockImplementation(async (url: string) =>
+      url === '/api/settings' ? { ok: true, json: async () => hidden } : { json: async () => [] }
+    ))
+    render(<DashboardPage />)
+    await screen.findByTestId('stat-bar')
+    await waitFor(() => expect(screen.queryByText('Equipment')).not.toBeInTheDocument())
   })
 })

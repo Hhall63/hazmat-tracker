@@ -24,8 +24,9 @@ export default function BoardPage() {
   const [equipment, setEquipment] = useState<EquipmentItem[]>([])
   const [logEntries, setLogEntries] = useState<LogEntry[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
-  const tier = useAutoDensity(containerRef, 1920)
+  const autoTier = useAutoDensity(containerRef, 1920)
   const settings = useAppSettings()
+  const tier = settings.board.densityOverride === 'auto' ? autoTier : settings.board.densityOverride
 
   const refetchTanks = useCallback(async () => {
     const response = await fetch('/api/tanks')
@@ -57,50 +58,58 @@ export default function BoardPage() {
   const activeTanks = tanks.filter((t) => t.status === 'in_use')
   const activeEquipment = equipment.filter((e) => e.status !== 'retired')
 
+  const sectionNodes: Record<string, JSX.Element> = {
+    stats: <StatBar key="stats" tanks={tanks} equipment={equipment} logEntries={logEntries} />,
+    problems: <ProblemsBanner key="problems" latestProblem={latestProblem} />,
+    cylinders: (
+      <section key="cylinders">
+        <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">{settings.headings.cylinders}</h2>
+        <div className="grid grid-cols-2 gap-2">
+          {activeTanks.map((tank) => (
+            <TankGauge key={tank.id} tank={tank} />
+          ))}
+        </div>
+      </section>
+    ),
+    equipment: (
+      <section key="equipment">
+        <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">{settings.headings.equipment}</h2>
+        {EQUIPMENT_CATEGORIES.map((category) => {
+          const items = activeEquipment.filter((i) => i.category === category)
+          if (items.length === 0) return null
+          return (
+            <div key={category} className="mb-2">
+              <h3 className="text-[11px] font-semibold text-ink-dim">
+                {CATEGORY_LABELS[category]}
+              </h3>
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between rounded-md border border-gold/20 bg-panel px-2 py-1"
+                >
+                  <span>{item.name}</span>
+                  <span
+                    className={
+                      item.status === 'in_service' ? 'text-status-green' : 'text-status-red'
+                    }
+                  >
+                    {item.status === 'in_service' ? 'In Service' : 'Out of Service'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )
+        })}
+      </section>
+    ),
+  }
+
   return (
     <main className="mx-auto h-[1920px] w-[1080px] overflow-hidden bg-bg">
       <div ref={containerRef}>
         <DashboardHeader />
         <div className={`space-y-3 ${DENSITY_PADDING[tier]}`}>
-          <StatBar tanks={tanks} equipment={equipment} logEntries={logEntries} />
-          <ProblemsBanner latestProblem={latestProblem} />
-          <section>
-            <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">{settings.headings.cylinders}</h2>
-            <div className="grid grid-cols-2 gap-2">
-              {activeTanks.map((tank) => (
-                <TankGauge key={tank.id} tank={tank} />
-              ))}
-            </div>
-          </section>
-          <section>
-            <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">{settings.headings.equipment}</h2>
-            {EQUIPMENT_CATEGORIES.map((category) => {
-              const items = activeEquipment.filter((i) => i.category === category)
-              if (items.length === 0) return null
-              return (
-                <div key={category} className="mb-2">
-                  <h3 className="text-[11px] font-semibold text-ink-dim">
-                    {CATEGORY_LABELS[category]}
-                  </h3>
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between rounded-md border border-gold/20 bg-panel px-2 py-1"
-                    >
-                      <span>{item.name}</span>
-                      <span
-                        className={
-                          item.status === 'in_service' ? 'text-status-green' : 'text-status-red'
-                        }
-                      >
-                        {item.status === 'in_service' ? 'In Service' : 'Out of Service'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )
-            })}
-          </section>
+          {settings.layout.board.filter((s) => s.visible).map((s) => sectionNodes[s.key])}
         </div>
       </div>
     </main>

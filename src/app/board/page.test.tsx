@@ -1,10 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import BoardPage from './page'
+import { DEFAULT_SETTINGS } from '@/lib/settings/types'
+
+// Mutable settings the mock returns; individual tests can override before render.
+const state = vi.hoisted(() => ({ override: null as null | object }))
 
 vi.mock('@/hooks/useAppSettings', async () => {
   const mod = (await vi.importActual('@/lib/settings/types')) as typeof import('@/lib/settings/types')
-  return { useAppSettings: () => mod.DEFAULT_SETTINGS }
+  return { useAppSettings: () => state.override ?? mod.DEFAULT_SETTINGS }
 })
 
 vi.mock('@/lib/supabaseClient', () => ({
@@ -17,6 +21,7 @@ vi.mock('@/lib/supabaseClient', () => ({
 }))
 
 beforeEach(() => {
+  state.override = null
   vi.stubGlobal(
     'fetch',
     vi.fn().mockResolvedValue({
@@ -38,5 +43,28 @@ describe('BoardPage', () => {
     render(<BoardPage />)
     expect(await screen.findByText('Cylinders')).toBeInTheDocument()
     expect(screen.getByText('Equipment')).toBeInTheDocument()
+  })
+
+  it('uses the density override when not auto', async () => {
+    state.override = { ...DEFAULT_SETTINGS, board: { densityOverride: 'dense' as const } }
+    const { container } = render(<BoardPage />)
+    await screen.findByText('Cylinders')
+    // `p-1.5` is unique to the dense tier; auto/comfortable would be `p-3`.
+    expect(container.querySelector('.p-1\\.5')).toBeTruthy()
+  })
+
+  it('omits a board section marked not visible', async () => {
+    state.override = {
+      ...DEFAULT_SETTINGS,
+      layout: {
+        ...DEFAULT_SETTINGS.layout,
+        board: DEFAULT_SETTINGS.layout.board.map((s) =>
+          s.key === 'equipment' ? { ...s, visible: false } : s
+        ),
+      },
+    }
+    render(<BoardPage />)
+    await screen.findByText('Cylinders')
+    expect(screen.queryByText('Equipment')).not.toBeInTheDocument()
   })
 })

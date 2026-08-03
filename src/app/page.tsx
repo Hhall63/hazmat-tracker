@@ -8,14 +8,17 @@ import { EquipmentSection } from '@/components/EquipmentSection'
 import { ProblemsBanner } from '@/components/ProblemsBanner'
 import { useLocalName } from '@/hooks/useLocalName'
 import { useRealtimeRefetch } from '@/hooks/useRealtimeRefetch'
+import { useAppSettings } from '@/hooks/useAppSettings'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import type { EquipmentItem, LogEntry, Tank } from '@/lib/types'
+import type { SectionConfig } from '@/lib/settings/types'
 
 export default function DashboardPage() {
   const [tanks, setTanks] = useState<Tank[]>([])
   const [equipment, setEquipment] = useState<EquipmentItem[]>([])
   const [logEntries, setLogEntries] = useState<LogEntry[]>([])
   const [name, setName] = useLocalName()
+  const settings = useAppSettings()
 
   const refetchTanks = useCallback(async () => {
     const response = await fetch('/api/tanks')
@@ -45,6 +48,23 @@ export default function DashboardPage() {
 
   const latestProblem = logEntries.find((e) => e.entryType === 'problem_note' && !e.resolved) ?? null
 
+  const sectionNodes: Record<string, JSX.Element> = {
+    stats: <StatBar key="stats" tanks={tanks} equipment={equipment} logEntries={logEntries} />,
+    problems: <ProblemsBanner key="problems" latestProblem={latestProblem} />,
+    cylinders: <TankSection key="cylinders" tanks={tanks} updatedBy={name} onChanged={refetchTanks} />,
+    equipment: <EquipmentSection key="equipment" items={equipment} updatedBy={name} onChanged={refetchEquipment} />,
+  }
+
+  // Group consecutive cylinders/equipment sections into one two-column grid row
+  // (preserves the default side-by-side layout); everything else is full-width.
+  const DATA_KEYS = new Set<string>(['cylinders', 'equipment'])
+  const rows: SectionConfig[][] = []
+  for (const s of settings.layout.dashboard.filter((s) => s.visible)) {
+    const last = rows[rows.length - 1]
+    if (last && DATA_KEYS.has(s.key) && DATA_KEYS.has(last[0].key)) last.push(s)
+    else rows.push([s])
+  }
+
   return (
     <div className="min-h-screen">
       <DashboardHeader />
@@ -57,12 +77,15 @@ export default function DashboardPage() {
             className="mt-1 block rounded border border-gold/20 bg-panel px-2 py-1 text-ink"
           />
         </label>
-        <StatBar tanks={tanks} equipment={equipment} logEntries={logEntries} />
-        <ProblemsBanner latestProblem={latestProblem} />
-        <div className="grid gap-6 md:grid-cols-2">
-          <TankSection tanks={tanks} updatedBy={name} onChanged={refetchTanks} />
-          <EquipmentSection items={equipment} updatedBy={name} onChanged={refetchEquipment} />
-        </div>
+        {rows.map((row, i) =>
+          row.length > 1 ? (
+            <div key={i} className="grid gap-6 md:grid-cols-2">
+              {row.map((s) => sectionNodes[s.key])}
+            </div>
+          ) : (
+            sectionNodes[row[0].key]
+          )
+        )}
         <div className="flex gap-4 text-sm">
           <a href="/log" className="text-gold underline">
             View full activity log →
