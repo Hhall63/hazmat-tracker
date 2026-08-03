@@ -1,8 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Repository } from './repository'
 import type {
+  CustomQrCode,
   EquipmentItem,
   LogEntry,
+  NewCustomQrInput,
   NewEquipmentInput,
   NewLogEntryInput,
   NewTankInput,
@@ -32,6 +34,17 @@ export function mapRowToEquipmentItem(row: any): EquipmentItem {
     status: row.status,
     lastUpdatedBy: row.last_updated_by,
     lastUpdatedAt: row.last_updated_at,
+  }
+}
+
+export function mapRowToCustomQr(row: any): CustomQrCode {
+  return {
+    id: row.id,
+    label: row.label,
+    targetUrl: row.target_url,
+    active: row.active,
+    createdBy: row.created_by,
+    createdAt: row.created_at,
   }
 }
 
@@ -227,6 +240,31 @@ export class SupabaseRepository implements Repository {
     const { error } = await this.client
       .from('admin_config')
       .upsert({ id: 'singleton', passcode_hash: hash, updated_at: new Date().toISOString() })
+    if (error) throw error
+  }
+
+  async getCustomQrCodes(): Promise<CustomQrCode[]> {
+    const { data, error } = await this.client
+      .from('custom_qr_codes')
+      .select('*')
+      .eq('active', true)
+      .order('created_at')
+    if (error) throw error
+    return (data ?? []).map(mapRowToCustomQr)
+  }
+
+  async insertCustomQrCode(input: NewCustomQrInput): Promise<CustomQrCode> {
+    const { data, error } = await this.client
+      .from('custom_qr_codes')
+      .insert({ label: input.label, target_url: input.targetUrl, created_by: input.createdBy })
+      .select('*')
+      .single()
+    if (error) throw error
+    return mapRowToCustomQr(data)
+  }
+
+  async deleteCustomQrCode(id: string): Promise<void> {
+    const { error } = await this.client.from('custom_qr_codes').delete().eq('id', id)
     if (error) throw error
   }
 }

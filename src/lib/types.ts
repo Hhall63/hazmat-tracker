@@ -60,3 +60,18 @@ export interface NewLogEntryInput {
   entryType: LogEntryType
   description: string
 }
+
+export interface CustomQrCode {
+  id: string
+  label: string
+  targetUrl: string
+  active: boolean
+  createdBy: string
+  createdAt: string
+}
+
+export interface NewCustomQrInput {
+  label: string
+  targetUrl: string
+  createdBy: string
+}

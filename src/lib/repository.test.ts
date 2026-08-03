@@ -144,3 +144,13 @@ describe('InMemoryRepository admin config', () => {
     expect(await repo.getAdminPasscodeHash()).toBe('salt:hash')
   })
 })
+
+describe('InMemoryRepository custom QR', () => {
+  it('inserts, lists, and deletes custom QR codes', async () => {
+    const repo = new InMemoryRepository()
+    const code = await repo.insertCustomQrCode({ label: 'SDS binder', targetUrl: 'https://x.co', createdBy: 'Chief' })
+    expect((await repo.getCustomQrCodes()).map((c) => c.id)).toEqual([code.id])
+    await repo.deleteCustomQrCode(code.id)
+    expect(await repo.getCustomQrCodes()).toEqual([])
+  })
+})

@@ -3,22 +3,49 @@
 import { useEffect, useState } from 'react'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { QrCode } from '@/components/QrCode'
+import { useAppSettings } from '@/hooks/useAppSettings'
 import { equipmentScanPath, problemScanPath, tankScanPath, toAbsoluteUrl } from '@/lib/scanUrl'
-import type { EquipmentItem, Tank } from '@/lib/types'
+import type { CustomQrCode, EquipmentItem, Tank } from '@/lib/types'
+
+// medium keeps today's default QR size (160).
+const QR_SIZE = { small: 120, medium: 160, large: 220 } as const
 
 export default function LabelsPage() {
+  const settings = useAppSettings()
   const [tanks, setTanks] = useState<Tank[]>([])
   const [equipment, setEquipment] = useState<EquipmentItem[]>([])
+  const [customCodes, setCustomCodes] = useState<CustomQrCode[]>([])
   const [origin, setOrigin] = useState('')
 
   useEffect(() => {
     fetch('/api/tanks').then(async (r) => setTanks(await r.json()))
     fetch('/api/equipment').then(async (r) => setEquipment(await r.json()))
+    fetch('/api/custom-qr').then(async (r) => {
+      if (r.ok) setCustomCodes(await r.json())
+    })
     setOrigin(window.location.origin)
   }, [])
 
   const activeTanks = tanks.filter((t) => t.status !== 'retired')
   const activeEquipment = equipment.filter((e) => e.status !== 'retired')
+  const { size, showLogo, footerText } = settings.labels
+  const qrSize = QR_SIZE[size]
+
+  const card = (key: string, value: string, title: string, subtitle?: string) => (
+    <div
+      key={key}
+      className="rounded border border-gold/20 bg-panel p-3 text-center print:border-black print:bg-white"
+    >
+      {showLogo && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={settings.branding.badgeImageUrl} alt="" className="mx-auto mb-2 h-8 w-auto" />
+      )}
+      <QrCode value={value} size={qrSize} />
+      <p className="mt-2 text-sm">{title}</p>
+      {subtitle && <p className="text-xs text-ink-dim">{subtitle}</p>}
+      {footerText && <p className="mt-1 text-xs text-ink-dim print:text-black">{footerText}</p>}
+    </div>
+  )
 
   return (
     <div className="min-h-screen print:bg-white">
@@ -36,29 +63,14 @@ export default function LabelsPage() {
           </button>
         </div>
         <div className="grid grid-cols-2 gap-4 print:grid-cols-3">
-          <div className="rounded border border-gold/20 bg-panel p-3 text-center print:border-black print:bg-white">
-            <QrCode value={toAbsoluteUrl(problemScanPath(), origin)} />
-            <p className="mt-2 text-sm">Log a Problem (general)</p>
-          </div>
-          {activeTanks.map((tank) => (
-            <div
-              key={tank.id}
-              className="rounded border border-gold/20 bg-panel p-3 text-center print:border-black print:bg-white"
-            >
-              <QrCode value={toAbsoluteUrl(tankScanPath(tank.id), origin)} />
-              <p className="mt-2 text-sm">{tank.gasType}</p>
-              <p className="text-xs text-ink-dim">{tank.assignedMeter ?? 'Unassigned'}</p>
-            </div>
-          ))}
-          {activeEquipment.map((item) => (
-            <div
-              key={item.id}
-              className="rounded border border-gold/20 bg-panel p-3 text-center print:border-black print:bg-white"
-            >
-              <QrCode value={toAbsoluteUrl(equipmentScanPath(item.id), origin)} />
-              <p className="mt-2 text-sm">{item.name}</p>
-            </div>
-          ))}
+          {card('problem', toAbsoluteUrl(problemScanPath(), origin), 'Log a Problem (general)')}
+          {activeTanks.map((tank) =>
+            card(tank.id, toAbsoluteUrl(tankScanPath(tank.id), origin), tank.gasType, tank.assignedMeter ?? 'Unassigned')
+          )}
+          {activeEquipment.map((item) =>
+            card(item.id, toAbsoluteUrl(equipmentScanPath(item.id), origin), item.name)
+          )}
+          {customCodes.map((c) => card(c.id, c.targetUrl, c.label))}
         </div>
       </main>
     </div>

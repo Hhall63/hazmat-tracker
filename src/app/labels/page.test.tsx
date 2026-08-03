@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import LabelsPage from './page'
 
+vi.mock('@/hooks/useAppSettings', async () => {
+  const mod = (await vi.importActual('@/lib/settings/types')) as typeof import('@/lib/settings/types')
+  return { useAppSettings: () => mod.DEFAULT_SETTINGS }
+})
+
 vi.mock('qrcode', () => ({
   default: { toDataURL: vi.fn().mockResolvedValue('data:image/png;base64,fake') },
 }))

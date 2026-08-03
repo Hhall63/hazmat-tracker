@@ -1,6 +1,8 @@
 import type {
+  CustomQrCode,
   EquipmentItem,
   LogEntry,
+  NewCustomQrInput,
   NewEquipmentInput,
   NewLogEntryInput,
   NewTankInput,
@@ -36,6 +38,10 @@ export interface Repository {
 
   getAdminPasscodeHash(): Promise<string | null>
   setAdminPasscodeHash(hash: string): Promise<void>
+
+  getCustomQrCodes(): Promise<CustomQrCode[]>
+  insertCustomQrCode(input: NewCustomQrInput): Promise<CustomQrCode>
+  deleteCustomQrCode(id: string): Promise<void>
 }
 
 export class InMemoryRepository implements Repository {
@@ -44,6 +50,7 @@ export class InMemoryRepository implements Repository {
   private logEntries: LogEntry[] = []
   private settings: AppSettings | null = null
   private adminPasscodeHash: string | null = null
+  private customQr: CustomQrCode[] = []
 
   async getTanks(): Promise<Tank[]> {
     return [...this.tanks]
@@ -162,5 +169,26 @@ export class InMemoryRepository implements Repository {
 
   async setAdminPasscodeHash(hash: string): Promise<void> {
     this.adminPasscodeHash = hash
+  }
+
+  async getCustomQrCodes(): Promise<CustomQrCode[]> {
+    return [...this.customQr]
+  }
+
+  async insertCustomQrCode(input: NewCustomQrInput): Promise<CustomQrCode> {
+    const code: CustomQrCode = {
+      id: crypto.randomUUID(),
+      label: input.label,
+      targetUrl: input.targetUrl,
+      active: true,
+      createdBy: input.createdBy,
+      createdAt: new Date().toISOString(),
+    }
+    this.customQr.push(code)
+    return code
+  }
+
+  async deleteCustomQrCode(id: string): Promise<void> {
+    this.customQr = this.customQr.filter((c) => c.id !== id)
   }
 }
