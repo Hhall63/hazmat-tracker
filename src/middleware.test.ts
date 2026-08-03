@@ -37,12 +37,15 @@ describe('admin middleware', () => {
     expect(res.status).toBe(200)
   })
 
-  it('fails closed (denies) when ADMIN_SESSION_SECRET is unset, even with a forged empty-secret token', async () => {
-    // Attacker who knows the secret is unset would forge HMAC('', payload).
-    const forged = await signSessionToken('', Date.now())
+  it('fails closed (denies without throwing) when ADMIN_SESSION_SECRET is unset', async () => {
+    // With a token cookie present but the secret env missing, the gate must deny
+    // cleanly. Without the `secret &&` short-circuit, verifySessionToken would be
+    // called with an empty key and THROW ("zero-length key"), so this also guards
+    // that the fix short-circuits before touching crypto.
+    const token = await signSessionToken('test-secret', Date.now())
     delete process.env.ADMIN_SESSION_SECRET
-    const res = await middleware(get('/admin/branding', `hazmat_admin=${forged}`))
-    expect(res.status).toBe(307) // redirected to login, NOT allowed through
+    const res = await middleware(get('/admin/branding', `hazmat_admin=${token}`))
+    expect(res.status).toBe(307) // redirected to login, NOT allowed through, no throw
     expect(res.headers.get('location')).toContain('/admin/login')
   })
 })
