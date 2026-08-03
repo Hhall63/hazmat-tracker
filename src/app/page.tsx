@@ -47,7 +47,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen">
-      <DashboardHeader subtitle="Engine 11 · Ladder 21 · RRT 5" />
+      <DashboardHeader />
       <main className="mx-auto max-w-4xl space-y-6 p-6">
         <label className="block text-sm text-ink-dim">
           Your name

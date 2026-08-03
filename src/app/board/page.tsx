@@ -7,6 +7,7 @@ import { ProblemsBanner } from '@/components/ProblemsBanner'
 import { TankGauge } from '@/components/TankGauge'
 import { CATEGORY_LABELS } from '@/lib/equipmentLabels'
 import { EQUIPMENT_CATEGORIES } from '@/lib/types'
+import { useAppSettings } from '@/hooks/useAppSettings'
 import { useAutoDensity } from '@/hooks/useAutoDensity'
 import { useRealtimeRefetch } from '@/hooks/useRealtimeRefetch'
 import { getSupabaseClient } from '@/lib/supabaseClient'
@@ -24,6 +25,7 @@ export default function BoardPage() {
   const [logEntries, setLogEntries] = useState<LogEntry[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
   const tier = useAutoDensity(containerRef, 1920)
+  const settings = useAppSettings()
 
   const refetchTanks = useCallback(async () => {
     const response = await fetch('/api/tanks')
@@ -58,12 +60,12 @@ export default function BoardPage() {
   return (
     <main className="mx-auto h-[1920px] w-[1080px] overflow-hidden bg-bg">
       <div ref={containerRef}>
-        <DashboardHeader subtitle="Engine 11 · Ladder 21 · RRT 5" />
+        <DashboardHeader />
         <div className={`space-y-3 ${DENSITY_PADDING[tier]}`}>
           <StatBar tanks={tanks} equipment={equipment} logEntries={logEntries} />
           <ProblemsBanner latestProblem={latestProblem} />
           <section>
-            <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">Cylinders</h2>
+            <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">{settings.headings.cylinders}</h2>
             <div className="grid grid-cols-2 gap-2">
               {activeTanks.map((tank) => (
                 <TankGauge key={tank.id} tank={tank} />
@@ -71,7 +73,7 @@ export default function BoardPage() {
             </div>
           </section>
           <section>
-            <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">Equipment</h2>
+            <h2 className="mb-2 text-xs uppercase tracking-wide text-gold">{settings.headings.equipment}</h2>
             {EQUIPMENT_CATEGORIES.map((category) => {
               const items = activeEquipment.filter((i) => i.category === category)
               if (items.length === 0) return null

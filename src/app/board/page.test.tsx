@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import BoardPage from './page'
 
+vi.mock('@/hooks/useAppSettings', async () => {
+  const mod = (await vi.importActual('@/lib/settings/types')) as typeof import('@/lib/settings/types')
+  return { useAppSettings: () => mod.DEFAULT_SETTINGS }
+})
+
 vi.mock('@/lib/supabaseClient', () => ({
   getSupabaseClient: () => ({
     channel: () => ({
@@ -27,5 +32,11 @@ describe('BoardPage', () => {
     expect(screen.getByTestId('stat-bar')).toBeInTheDocument()
     expect(screen.queryAllByRole('button')).toHaveLength(0)
     expect(screen.queryAllByRole('textbox')).toHaveLength(0)
+  })
+
+  it('renders section headings from settings', async () => {
+    render(<BoardPage />)
+    expect(await screen.findByText('Cylinders')).toBeInTheDocument()
+    expect(screen.getByText('Equipment')).toBeInTheDocument()
   })
 })

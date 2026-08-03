@@ -37,7 +37,7 @@ export default function LogPage() {
 
   return (
     <div className="min-h-screen">
-      <DashboardHeader subtitle="Engine 11 · Ladder 21 · RRT 5" />
+      <DashboardHeader />
       <main className="mx-auto max-w-3xl p-6">
         <a href="/" className="text-sm text-gold underline">
           ← Back to dashboard
