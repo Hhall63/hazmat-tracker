@@ -18,6 +18,12 @@ In the Supabase SQL editor, run these in order:
   (public read, service-role write, realtime enabled).
 - `supabase/migrations/0003_admin_config.sql` — creates `admin_config`
   (service-role only) and seeds a singleton row with a **null** passcode.
+- `supabase/migrations/0004_custom_qr.sql` — creates `custom_qr_codes`
+  (public read, service-role write) for the admin QR panel.
+- `supabase/migrations/0005_storage_branding.sql` — creates the public-read
+  `branding` storage bucket for image uploads (admin Images panel). If your
+  Supabase project blocks DDL on the `storage` schema from the SQL editor,
+  create a public bucket named `branding` from Storage → New bucket instead.
 
 ## 2. Set environment variables
 
