@@ -1,14 +1,23 @@
 import './globals.css'
 import type { ReactNode } from 'react'
+import type { Metadata, Viewport } from 'next'
 import { Inter, IBM_Plex_Mono } from 'next/font/google'
+import { getRepository } from '@/lib/repositoryFactory'
+import { getMergedSettings } from '@/lib/settings/settingsService'
 
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans' })
 const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-mono' })
 
-export const metadata = {
-  title: 'HAZMAT Inventory Dashboard',
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getMergedSettings(getRepository())
+  return {
+    title: settings.branding.tabTitle,
+    manifest: '/manifest.json',
+  }
+}
+
+export const viewport: Viewport = {
   themeColor: '#0a1120',
-  manifest: '/manifest.json',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
