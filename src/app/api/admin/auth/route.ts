@@ -3,7 +3,8 @@ import { getAdminRepository } from '@/lib/repositoryFactory'
 import { verifyPasscode } from '@/lib/auth/passcode'
 import { signSessionToken } from '@/lib/auth/session'
 
-export const ADMIN_COOKIE = 'hazmat_admin'
+// Not exported: Next.js route modules may only export HTTP handlers + route config.
+const ADMIN_COOKIE = 'hazmat_admin'
 const THIRTY_DAYS = 60 * 60 * 24 * 30
 
 export async function POST(request: Request) {
