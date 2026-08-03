@@ -3,6 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import ScanTankPage from './page'
 import type { Tank } from '@/lib/types'
 
+vi.mock('@/hooks/useAppSettings', async () => {
+  const mod = (await vi.importActual('@/lib/settings/types')) as typeof import('@/lib/settings/types')
+  return { useAppSettings: () => mod.DEFAULT_SETTINGS }
+})
+
 const tank: Tank = {
   id: 'tank-1',
   gasType: 'Oxygen',

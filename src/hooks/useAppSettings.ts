@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { getSupabaseClient } from '@/lib/supabaseClient'
 import { useRealtimeRefetch } from './useRealtimeRefetch'
 import { DEFAULT_SETTINGS, type AppSettings } from '@/lib/settings/types'
+import { mergeSettings } from '@/lib/settings/mergeSettings'
 
 export function useAppSettings(): AppSettings {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
@@ -12,7 +13,7 @@ export function useAppSettings(): AppSettings {
     try {
       const res = await fetch('/api/settings')
       if (!res.ok) return
-      setSettings(await res.json())
+      setSettings(mergeSettings(await res.json()))
     } catch {
       // keep last-known/defaults on failure
     }

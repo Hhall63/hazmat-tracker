@@ -3,6 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import ScanEquipmentPage from './page'
 import type { EquipmentItem } from '@/lib/types'
 
+vi.mock('@/hooks/useAppSettings', async () => {
+  const mod = (await vi.importActual('@/lib/settings/types')) as typeof import('@/lib/settings/types')
+  return { useAppSettings: () => mod.DEFAULT_SETTINGS }
+})
+
 const item: EquipmentItem = {
   id: 'eq-1',
   name: 'Air Monitor — MultiRAE #2',

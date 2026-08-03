@@ -26,4 +26,16 @@ describe('useAppSettings', () => {
     expect(result.current.branding.title).toBe('HAZMAT Inventory')
     await waitFor(() => expect(result.current.branding.title).toBe('Truck 21'))
   })
+
+  it('falls back to complete defaults when /api/settings resolves a non-settings payload', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ id: 'x', gasType: 'Oxygen' }),
+      })
+    )
+    const { result } = renderHook(() => useAppSettings())
+    await waitFor(() => expect(result.current.branding.title).toBe('HAZMAT Inventory'))
+  })
 })

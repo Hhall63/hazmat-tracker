@@ -3,6 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import LogPage from './page'
 import type { LogEntry } from '@/lib/types'
 
+vi.mock('@/hooks/useAppSettings', async () => {
+  const mod = (await vi.importActual('@/lib/settings/types')) as typeof import('@/lib/settings/types')
+  return { useAppSettings: () => mod.DEFAULT_SETTINGS }
+})
+
 vi.mock('@/lib/supabaseClient', () => ({
   getSupabaseClient: () => ({
     channel: () => ({
