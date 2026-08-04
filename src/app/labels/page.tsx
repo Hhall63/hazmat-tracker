@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { DashboardHeader } from '@/components/DashboardHeader'
-import { QrCode } from '@/components/QrCode'
+import { QrLabel } from '@/components/QrLabel'
 import { useAppSettings } from '@/hooks/useAppSettings'
 import { equipmentScanPath, problemScanPath, tankScanPath, toAbsoluteUrl } from '@/lib/scanUrl'
 import type { CustomQrCode, EquipmentItem, Tank } from '@/lib/types'
@@ -32,19 +32,16 @@ export default function LabelsPage() {
   const qrSize = QR_SIZE[size]
 
   const card = (key: string, value: string, title: string, subtitle?: string) => (
-    <div
+    <QrLabel
       key={key}
-      className="rounded border border-gold/20 bg-panel p-3 text-center print:border-black print:bg-white"
-    >
-      {showLogo && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={settings.branding.badgeImageUrl} alt="" className="mx-auto mb-2 h-8 w-auto" />
-      )}
-      <QrCode value={value} size={qrSize} />
-      <p className="mt-2 text-sm">{title}</p>
-      {subtitle && <p className="text-xs text-ink-dim">{subtitle}</p>}
-      {footerText && <p className="mt-1 text-xs text-ink-dim print:text-black">{footerText}</p>}
-    </div>
+      value={value}
+      title={title}
+      subtitle={subtitle}
+      qrSize={qrSize}
+      showLogo={showLogo}
+      badgeImageUrl={settings.branding.badgeImageUrl}
+      footerText={footerText}
+    />
   )
 
   return (
