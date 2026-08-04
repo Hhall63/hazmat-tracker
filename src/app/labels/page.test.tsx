@@ -63,4 +63,11 @@ describe('LabelsPage', () => {
     await screen.findByText('Oxygen')
     expect(screen.getByText('Print All')).toBeInTheDocument()
   })
+
+  it('offers a New label link and per-card Print label links', async () => {
+    render(<LabelsPage />)
+    await screen.findByText('Oxygen')
+    expect(screen.getByText('＋ New label').closest('a')).toHaveAttribute('href', '/labels/new')
+    expect(screen.getAllByText('Print label').length).toBeGreaterThan(0)
+  })
 })

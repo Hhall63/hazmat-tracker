@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { DashboardHeader } from '@/components/DashboardHeader'
 import { QrLabel } from '@/components/QrLabel'
 import { useAppSettings } from '@/hooks/useAppSettings'
@@ -44,6 +45,24 @@ export default function LabelsPage() {
     />
   )
 
+  const printHref = (value: string, title: string, subtitle?: string) => {
+    const q = new URLSearchParams({ value, title })
+    if (subtitle) q.set('subtitle', subtitle)
+    return `/labels/print?${q.toString()}`
+  }
+
+  const cell = (key: string, value: string, title: string, subtitle?: string) => (
+    <div key={key} className="space-y-1">
+      {card(key, value, title, subtitle)}
+      <Link
+        href={printHref(value, title, subtitle)}
+        className="block text-center text-xs text-gold underline print:hidden"
+      >
+        Print label
+      </Link>
+    </div>
+  )
+
   return (
     <div className="min-h-screen print:bg-white">
       <div className="print:hidden">
@@ -52,22 +71,27 @@ export default function LabelsPage() {
       <main className="mx-auto max-w-4xl p-6 text-ink print:text-black">
         <div className="mb-4 flex items-center justify-between print:hidden">
           <h2 className="text-xl font-bold">QR Labels</h2>
-          <button
-            onClick={() => window.print()}
-            className="rounded bg-gold px-3 py-1 text-bg"
-          >
-            Print All
-          </button>
+          <div className="flex items-center gap-2">
+            <Link href="/labels/new" className="rounded border border-gold/40 px-3 py-1 text-gold">
+              ＋ New label
+            </Link>
+            <button
+              onClick={() => window.print()}
+              className="rounded bg-gold px-3 py-1 text-bg"
+            >
+              Print All
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-4 print:grid-cols-3">
-          {card('problem', toAbsoluteUrl(problemScanPath(), origin), 'Log a Problem (general)')}
+          {cell('problem', toAbsoluteUrl(problemScanPath(), origin), 'Log a Problem (general)')}
           {activeTanks.map((tank) =>
-            card(tank.id, toAbsoluteUrl(tankScanPath(tank.id), origin), tank.gasType, tank.assignedMeter ?? 'Unassigned')
+            cell(tank.id, toAbsoluteUrl(tankScanPath(tank.id), origin), tank.gasType, tank.assignedMeter ?? 'Unassigned')
           )}
           {activeEquipment.map((item) =>
-            card(item.id, toAbsoluteUrl(equipmentScanPath(item.id), origin), item.name)
+            cell(item.id, toAbsoluteUrl(equipmentScanPath(item.id), origin), item.name)
           )}
-          {customCodes.map((c) => card(c.id, c.targetUrl, c.label))}
+          {customCodes.map((c) => cell(c.id, c.targetUrl, c.label))}
         </div>
       </main>
     </div>
